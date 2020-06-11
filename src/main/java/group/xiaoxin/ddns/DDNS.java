@@ -28,6 +28,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DDNS {
+    private static final String domain = System.getenv("domain");
+    private static final String subDomain = System.getenv("sub_domain");
     private static final String zone = System.getenv("zone");
     private static final String accessKeyID = System.getenv("access_key_id");
     private static final String accessKeySecret = System.getenv("access_key_secret");
@@ -115,8 +117,8 @@ public class DDNS {
 
     @Scheduled(fixedRate = 1000 * 60)
     public void checkAndSet() {
-        if (zone == null || accessKeyID == null || accessKeySecret == null) {
-            System.out.println("请设置环境变量zone、access_key_id、access_key_secret");
+        if (domain == null || subDomain == null || zone == null || accessKeyID == null || accessKeySecret == null) {
+            System.out.println("请设置环境变量domain、sub_domain、zone、access_key_id、access_key_secret");
             return;
         }
 
@@ -129,9 +131,9 @@ public class DDNS {
         // 查询指定二级域名的最新解析记录
         DescribeDomainRecordsRequest describeDomainRecordsRequest = new DescribeDomainRecordsRequest();
         // 主域名
-        describeDomainRecordsRequest.setDomainName("xiaoxin.group");
+        describeDomainRecordsRequest.setDomainName(domain);
         // 主机记录
-        describeDomainRecordsRequest.setRRKeyWord("dev");
+        describeDomainRecordsRequest.setRRKeyWord(subDomain);
         // 解析记录类型
         describeDomainRecordsRequest.setType("A");
         DescribeDomainRecordsResponse describeDomainRecordsResponse = ddns
@@ -154,7 +156,7 @@ public class DDNS {
                 // 修改解析记录
                 UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
                 // 主机记录
-                updateDomainRecordRequest.setRR("dev");
+                updateDomainRecordRequest.setRR(subDomain);
                 // 记录ID
                 updateDomainRecordRequest.setRecordId(recordId);
                 // 将主机记录值改为当前主机IP
