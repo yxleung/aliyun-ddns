@@ -3,6 +3,7 @@
 ```shell
 docker run \
     --name aliyun-ddns \
+    --net=host \
     -d --restart=always \
     -e zone=cn-shenzhen \
     -e domain="your domain" \
