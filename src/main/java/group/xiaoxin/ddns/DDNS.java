@@ -18,6 +18,8 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.google.gson.Gson;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DDNS {
+    private static final Logger logger = LoggerFactory.getLogger(DDNS.class);
     private static final String domain = System.getenv("domain");
     private static final String subDomain = System.getenv("sub_domain");
     private static final String zone = System.getenv("zone");
@@ -109,12 +112,6 @@ public class DDNS {
         }
     }
 
-    private static void log_print(String functionName, Object result) {
-        Gson gson = new Gson();
-        System.out.println("-------------------------------" + functionName + "-------------------------------");
-        System.out.println(gson.toJson(result));
-    }
-
     @Scheduled(fixedRate = 1000 * 60)
     public void checkAndSet() {
         if (domain == null || subDomain == null || zone == null || accessKeyID == null || accessKeySecret == null) {
@@ -138,7 +135,7 @@ public class DDNS {
         describeDomainRecordsRequest.setType("A");
         DescribeDomainRecordsResponse describeDomainRecordsResponse = ddns
                 .describeDomainRecords(describeDomainRecordsRequest, client);
-        log_print("describeDomainRecords", describeDomainRecordsResponse);
+        logger.info("describeDomainRecordsResponse:{}",new Gson().toJson(describeDomainRecordsRequest));
 
         List<DescribeDomainRecordsResponse.Record> domainRecords = describeDomainRecordsResponse.getDomainRecords();
         // 最新的一条解析记录
@@ -165,7 +162,7 @@ public class DDNS {
                 updateDomainRecordRequest.setType("A");
                 UpdateDomainRecordResponse updateDomainRecordResponse = ddns
                         .updateDomainRecord(updateDomainRecordRequest, client);
-                log_print("updateDomainRecord", updateDomainRecordResponse);
+                logger.info("updateDomainRecord:{}",new Gson().toJson(updateDomainRecordResponse));
             }
         }
     }
